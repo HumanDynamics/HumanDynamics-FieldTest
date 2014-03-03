@@ -21,6 +21,7 @@
  */
 package edu.mit.media.realityanalysis.fieldtest;
 
+import edu.mit.media.funf.FunfManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,13 +32,27 @@ public class LauncherReceiver extends BroadcastReceiver {
 	private static boolean launched = false;
 	
 	public static void launch(Context context) {
-		startService(context.getApplicationContext(), MainPipeline.class); // Ensure main funf system is running
+		try {
+			PDSWrapper pds = new PDSWrapper(context);
+		} catch (Exception ex) {
+			return;
+		}
+		startService(context.getApplicationContext(), FunfManagerService.class); // Ensure main funf system is running
 		launched = true;
 	}
 	
-	public static void startService(Context context, Class<? extends Service> serviceClass) {
-		Intent i = new Intent(context.getApplicationContext(), serviceClass);
-		context.getApplicationContext().startService(i);
+	public static void startService(final Context context, final Class<? extends Service> serviceClass) {
+		if (!launched) {
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Intent i = new Intent(context.getApplicationContext(), serviceClass);
+					context.getApplicationContext().startService(i);					
+				}
+			});
+			
+			thread.start();
+		}
 	}
 	
 	public static boolean isLaunched() {

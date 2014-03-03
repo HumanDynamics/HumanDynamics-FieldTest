@@ -6,6 +6,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -231,8 +232,10 @@ public class LoginActivity extends Activity {
 		@Override
 		protected void onPostExecute(Boolean result) {
 			
-			if (result) { 
-				mActivity.finish();
+			if (result) {
+				Intent mainActivityIntent = new Intent(mActivity, MainActivity.class);
+				mActivity.startActivity(mainActivityIntent);
+				mActivity.finish();				
 			}
 		}		
 		

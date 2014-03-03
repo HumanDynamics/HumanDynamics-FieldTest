@@ -126,6 +126,16 @@ public class RegistryServer {
 
 		return getJSON(response);
 	}
-	
+
+	public JSONObject getSurvey(String surveyId) throws IOException {
+		String url = getAbsoluteUrl(R.string.survey_api_relative_url, new BasicNameValuePair("survey", surveyId.toString()));
+		
+		HttpClient httpClient = new DefaultHttpClient();
+		HttpGet httpGet = new HttpGet(url);
+		
+		HttpResponse response = httpClient.execute(httpGet);
+		
+		return getJSON(response);
+	}
 	
 }

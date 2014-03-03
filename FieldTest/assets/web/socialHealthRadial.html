@@ -1,0 +1,55 @@
+<html>
+<head>
+        <title></title>
+        
+	<!-- jQuery/jQuery Mobile -->
+	<script src="http://code.jquery.com/jquery-1.7.1.js"></script>
+	
+	
+	<script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.js"></script>
+	
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
+
+	
+        <script src="/static/js/underscore-min.js"></script>
+        <script src="/static/js/backbone-min.js"></script>
+        <script src="/static/js/backbone-tastypie.js"></script>
+        <script src="/static/js/ICanHaz.min.js"></script>
+        <script src="/static/js/admin.js"></script>
+
+        
+
+  <script src="/static/js/jQuery.ui.datepicker.js"></script>
+     <link rel="stylesheet" href="/static/css/jquery.ui.datepicker.mobile.css" /> 
+  <script src="/static/js/jquery.ui.datepicker.mobile.js"></script>
+      
+<script src="http://d3js.org/d3.v2.js"></script>
+
+<script>
+    ANSWERLIST_API_URL = "/api/personal_data/answerlist/";
+    ANSWERLIST_KEY = "socialhealth";
+</script>
+
+<script src="/static/js/answerList.js"></script>
+<script src="/static/js/socialHealthRadial.js"></script>
+<script>
+$(function () {
+	window.radialApp = new SocialHealthRadialView();
+	$(window).bind("resize", function () { radialApp.render(); });
+});
+</script>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+</head>
+<body>
+    <div id="content">
+        <div class="container">
+            <div id="radial_chart"></div>
+        </div>
+    </div>
+</body>
+

@@ -1,8 +1,13 @@
 package edu.mit.media.realityanalysis.fieldtest;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.CharBuffer;
 import java.util.HashMap;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -10,10 +15,12 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -22,6 +29,7 @@ import android.webkit.WebStorage.QuotaUpdater;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+@SuppressLint("ValidFragment")
 public class WebViewFragment extends Fragment {
 
 	private String mUrl;
@@ -31,10 +39,17 @@ public class WebViewFragment extends Fragment {
 	private String mTitle;
 	private Activity mActivity;
 	private ViewPager mViewPager;
+	private WebViewFragmentJavascriptInterface mJavascriptInterface;
 	
 	public static WebViewFragment Create(String url, String title, Activity activity, ViewPager viewPager) {
-
-		return new WebViewFragment(url, title, activity, viewPager);
+		return Create(url, title, activity, viewPager, new WebViewFragmentJavascriptInterface(viewPager, activity));
+	}
+	
+	public static WebViewFragment Create(String url, String title, Activity activity, ViewPager viewPager, WebViewFragmentJavascriptInterface jsInterface) {
+		WebViewFragment fragment = new WebViewFragment(url, title, activity, viewPager);
+		fragment.mJavascriptInterface = jsInterface;
+		
+		return fragment;
 	}
 	
 	public WebViewFragment() {
@@ -64,7 +79,7 @@ public class WebViewFragment extends Fragment {
 		//mWebView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		mWebView.getSettings().setJavaScriptEnabled(true);
 		mWebView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-		mWebView.setWebViewClient(new WebViewClient() {			
+		mWebView.setWebViewClient(new LocalStorageBackedWebViewClient(getActivity()) {			
 			@Override
 			public void onPageStarted(WebView view, String url, Bitmap favicon) {
 				mWebView.setVisibility(View.GONE);
@@ -83,11 +98,38 @@ public class WebViewFragment extends Fragment {
 				view.loadData(getString(R.string.problem_contacting_server), "text/html", "UTF-8");
 			}		
 		});
+		
+		mWebView.setWebChromeClient(new WebChromeClient() {
+			@Override
+			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+				Log.w("WebviewFragment", consoleMessage.message());
+				return super.onConsoleMessage(consoleMessage);
+			}
+		});
 					
-		mWebView.addJavascriptInterface(new WebViewFragmentJavascriptInterface(mViewPager), "android");
+		mWebView.addJavascriptInterface(mJavascriptInterface, "android");
 		
 		if (savedInstanceState != null) {
 			mWebView.restoreState(savedInstanceState);
+		} else if (mUrl.contains("file:///android_asset/")) {
+			String assetUrl = mUrl.replace("file:///android_asset/", "");
+			if (assetUrl.contains("?")) {
+				assetUrl = assetUrl.substring(0, assetUrl.indexOf("?"));
+			}
+			
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(getActivity().getAssets().open(assetUrl)));
+			    StringBuilder total = new StringBuilder();
+			    String line;
+				while ((line = reader.readLine()) != null) {
+					total.append(line);
+				}
+			    
+				mWebView.loadDataWithBaseURL("http://18.85.28.214:8004/", total.toString(), "text/html", "UTF-8", "");
+			} catch (IOException e) {
+				mWebView.loadUrl(mUrl);
+			}
+
 		} else {
 			mWebView.loadUrl(mUrl);
 		}		
@@ -96,41 +138,7 @@ public class WebViewFragment extends Fragment {
 		return mView;
 	}	
 	
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		
-		// For some reason, the webview is never destroyed by default, even though the view is destroyed
-		// As a result, we need to manually do it
-		//mWebView.destroy();
-	}
-	
 	public String getTitle() {
 		return mTitle;
-	}
-	
-	
-	private class WebViewFragmentJavascriptInterface {
-		
-		private ViewPager mViewPager;
-		
-		public WebViewFragmentJavascriptInterface(ViewPager viewPager) {
-			mViewPager = viewPager;
-		}
-		
-		public Boolean hideWebNavBar() {
-			return true;
-		}
-		
-		public Boolean handleTabChange(final String dimension, final int tabNumber) {
-			mActivity.runOnUiThread(new Runnable() { 
-				public void run() {
-					mViewPager.setCurrentItem(tabNumber + 1);
-				}
-			});
-			
-			return true;
-		}
-	}
-	
+	}		
 }

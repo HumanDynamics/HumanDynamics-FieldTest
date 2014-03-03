@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.mit.media.realityanalysis.fieldtest"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="5"
+    android:versionName="1.2" >
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="16" />
+        android:targetSdkVersion="19" />
 
     <!-- Launching -->
     <uses-permission android:name="android.permission.BATTERY_STATS" />
@@ -30,7 +30,6 @@
 
     <!-- Call Log Probe -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
 
     <!-- Location probe -->
@@ -42,14 +41,30 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- GCM -->
+    <permission
+        android:name="edu.mit.media.realityanalysis.fieldtest.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="edu.mit.media.realityanalysis.fieldtest.permission.C2D_MESSAGE" />
+    <!-- App receives GCM messages. -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <!-- GCM requires a Google account. -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <application
+        android:name="edu.mit.media.realityanalysis.fieldtest.FieldTestApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+"
         <activity
             android:name="edu.mit.media.realityanalysis.fieldtest.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:finishOnTaskLaunch="true"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,35 +79,6 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
 
-        <!-- Probe Services -->
-        <service
-            android:name="edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe"
-            android:enabled="true" >
-        </service>
-        <service
-            android:name="edu.mit.media.funf.probe.builtin.ActivityProbe"
-            android:enabled="true" >
-        </service>
-        <service
-            android:name="edu.mit.media.funf.probe.builtin.ScreenProbe"
-            android:enabled="true" >
-        </service>
-        <service
-            android:name="edu.mit.media.funf.probe.builtin.SMSProbe"
-            android:enabled="true" >
-        </service>
-        <service
-            android:name="edu.mit.media.funf.probe.builtin.CallLogProbe"
-            android:enabled="true" >
-        </service>
-        <service
-            android:name="edu.mit.media.funf.probe.builtin.LocationProbe"
-            android:enabled="true" >
-        </service>
-        <service
-            android:name="edu.mit.media.realityanalysis.fieldtest.MainPipeline"
-            android:enabled="true" >
-        </service>
         <service
             android:name="edu.mit.media.funf.storage.NameValueDatabaseService"
             android:enabled="true" >
@@ -113,6 +99,16 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="com.google.android.gcm.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="edu.mit.media.realityanalysis.fieldtest" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name="edu.mit.media.realityanalysis.fieldtest.SettingsActivity"
@@ -125,7 +121,39 @@
             android:name="edu.mit.media.realityanalysis.fieldtest.DebugActivity"
             android:label="@string/title_activity_debug" >
         </activity>
-        <service android:name="edu.mit.media.realityanalysis.fieldtest.NotificationService" android:enabled="true"></service>
+
+        <service
+            android:name="edu.mit.media.realityanalysis.fieldtest.NotificationService"
+            android:enabled="true" >
+        </service>
+        <service
+            android:name="edu.mit.media.realityanalysis.fieldtest.FunfManagerService"
+            android:enabled="true" >
+            <meta-data
+                android:name="MainPipeline"
+                android:resource="@string/main_pipeline_config" />
+        </service>
+
+        <activity
+            android:name="edu.mit.media.realityanalysis.fieldtest.SurveyActivity"
+            android:finishOnTaskLaunch="true"
+            android:label="@string/app_name"
+            android:parentActivityName="edu.mit.media.realityanalysis.fieldtest.MainActivity"
+            android:theme="@android:style/Theme.Dialog" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.mit.media.realityanalysis.fieldtest.MainActivity" />
+        </activity>
+
+        <service
+            android:name="edu.mit.media.realityanalysis.fieldtest.GCMIntentService"
+            android:enabled="true" >
+        </service>
+
+        <activity
+            android:name="edu.mit.media.realityanalysis.fieldtest.NativeSurveyActivity"
+            android:label="@string/title_activity_native_survey" >
+        </activity>
     </application>
 
 </manifest>

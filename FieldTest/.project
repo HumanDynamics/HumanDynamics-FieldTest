@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>FieldTest</name>
+	<name>FieldTestV4</name>
 	<comment></comment>
 	<projects>
-		<project>funf</project>
+		<project>newFunf</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

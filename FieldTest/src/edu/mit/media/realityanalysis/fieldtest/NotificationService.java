@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.util.Log;
 
 public class NotificationService extends IntentService {
 
@@ -39,6 +40,8 @@ public class NotificationService extends IntentService {
 					notificationManager.notify(notificationType, notifications.get(notificationType));
 				}
 			}
+		} catch (Exception e) {
+			Log.w("NotificationService", e);
 		}
 		finally {
 			if (mWakeLock.isHeld()) {

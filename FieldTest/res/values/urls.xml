@@ -13,5 +13,6 @@
     <string name="focus_relative_url">/visualization/focus/</string>
     <string name="notification_api_relative_url">/api/personal_data/notification/</string>
     <string name="places_relative_url">/visualization/places/</string>
-    
+    <string name="device_api_relative_url">/api/personal_data/device/</string>
+    <string name="survey_api_relative_url">/questions/api/surveyapi/survey_question_answer_link/</string>    
 </resources>
